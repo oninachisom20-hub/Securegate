@@ -1,0 +1,361 @@
+# 1. Product Overview
+
+SecureGate is a standalone authentication and security system built to demonstrate secure identity and access management.
+
+The application focuses on authentication depth rather than product breadth.
+
+SecureGate acts as a reusable authentication layer that can be integrated into larger applications.
+
+---
+
+# 2. Problem Statement
+
+Many applications implement authentication poorly.
+
+Common issues include:
+
+- Weak password handling
+- No verification flows
+- Poor session protection
+- Password reset vulnerabilities
+- User enumeration
+- Missing brute-force protection
+
+SecureGate addresses these risks by implementing authentication using modern security practices.
+
+---
+
+# 3. Product Goal
+
+Build a focused, secure, production-style authentication system that demonstrates:
+
+- Secure user identity handling
+- Session management
+- Email verification
+- Password recovery
+- Route protection
+- Security hardening
+
+---
+
+# 4. Target Users
+
+Primary Users:
+
+- Users creating secure accounts
+- Users logging into applications
+- Users recovering forgotten passwords
+
+Secondary Users:
+
+- Developers studying authentication systems
+- Bootcamp reviewers assessing engineering practices
+
+---
+
+# 5. Core User Stories
+
+### Account Creation
+
+As a user,
+
+I want to create an account securely,
+
+So that I can access protected resources.
+
+---
+
+### Email Verification
+
+As a user,
+
+I want to verify my email,
+
+So that my identity can be confirmed.
+
+---
+
+### Login
+
+As a user,
+
+I want to sign in securely,
+
+So that I can access my dashboard.
+
+---
+
+### Password Recovery
+
+As a user,
+
+I want to reset my password,
+
+So that I can recover my account.
+
+---
+
+### Protected Access
+
+As a user,
+
+I want unauthorized access prevented,
+
+So that my account remains secure.
+
+---
+
+# 6. Feature Requirements
+
+## Feature 1 — Sign Up
+
+Requirements:
+
+- Name
+- Email
+- Password
+- Form validation
+- Password strength indicator
+- Password hashing
+- Verification email
+
+Acceptance Criteria:
+
+- Invalid input rejected
+- Password hashed
+- User created
+- Verification token generated
+- Email sent
+
+---
+
+## Feature 2 — Login
+
+Requirements:
+
+- Credentials login
+- NextAuth session
+- Secure error handling
+
+Acceptance Criteria:
+
+- Valid login succeeds
+- Invalid login rejected
+- Session created
+- No leaked information
+
+---
+
+## Feature 3 — Email Verification
+
+Requirements:
+
+- Secure token generation
+- Database token storage
+- Expiry handling
+- Verification endpoint
+
+Acceptance Criteria:
+
+- Token validated
+- Expired token rejected
+- User verified
+- Token deleted
+
+---
+
+## Feature 4 — Forgot Password
+
+Requirements:
+
+- Email request
+- Token creation
+- Reset email
+- New password flow
+
+Acceptance Criteria:
+
+- Token expires
+- Password rehashed
+- Token deleted
+- Redirect works
+
+---
+
+## Feature 5 — Protected Dashboard
+
+Requirements:
+
+- Middleware protection
+- Session validation
+- Verification check
+
+Acceptance Criteria:
+
+- Verified users allowed
+- Others redirected
+
+---
+
+## Feature 6 — Logout
+
+Requirements:
+
+- Session destruction
+- Redirect
+
+Acceptance Criteria:
+
+- Session removed
+- Redirect login
+
+---
+
+## Feature 7 — Security Hardening
+
+Requirements:
+
+- Rate limiting
+- Security headers
+- Sanitized errors
+- Environment protection
+
+Acceptance Criteria:
+
+- Login brute force blocked
+- Secrets hidden
+- Headers active
+
+---
+
+# 7. Non-Goals (YAGNI Scope Control)
+
+The following are intentionally excluded:
+
+- Social login
+- Multi-factor authentication
+- Admin dashboard
+- User roles
+- Payments
+- Audit logs
+- OAuth providers
+- Analytics
+
+These features are valuable but outside current MVP scope.
+
+---
+
+# 8. Security Requirements
+
+SecureGate follows security-first engineering.
+
+Mandatory requirements:
+
+- bcrypt hashing
+- Salt rounds = 12
+- Token expiry
+- No plaintext passwords
+- No hardcoded secrets
+- Rate limiting
+- Generic auth errors
+- Server-side validation
+- Protected routes
+
+---
+
+# 9. Technical Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 14 |
+| Language | TypeScript |
+| ORM | Prisma |
+| Database | PostgreSQL |
+| Authentication | NextAuth |
+| Email | Resend |
+| Validation | Zod |
+| Hashing | bcryptjs |
+| Deployment | Vercel |
+
+---
+
+# 10. Success Metrics
+
+SecureGate succeeds when:
+
+- Sign up works
+- Email verification works
+- Login works
+- Dashboard protected
+- Forgot password works
+- Password reset works
+- Rate limiting active
+- Deployment successful
+- No secrets leaked
+- Reflection complete
+
+---
+
+# 11. Risks
+
+Potential risks include:
+
+- Token bugs
+- Session failures
+- Expired verification links
+- Misconfigured environment variables
+- Email delivery failure
+- Weak error handling
+- Middleware bypass
+
+Mitigation:
+
+- Manual testing
+- Security review
+- End-to-end flow validation
+
+---
+
+# 12. Engineering Principles
+
+This project is guided by:
+
+- Murphy's Law
+- YAGNI
+- Gall's Law
+- Defensive Programming
+- Law of Leaky Abstractions
+- Kerckhoffs Principle
+- Technical Debt Awareness
+
+These principles influence implementation decisions.
+
+---
+
+# 13. MVP Definition
+
+SecureGate MVP is complete when:
+
+1. User signs up
+2. Verification email received
+3. Email verified
+4. Login succeeds
+5. Dashboard protected
+6. Forgot password works
+7. Reset succeeds
+8. Logout works
+9. Rate limiting active
+10. App deployed
+
+---
+
+# 14. Submission Deliverables
+
+Final submission includes:
+
+- GitHub Repository
+- Live Vercel URL
+- REFLECTION.md
+- Voice Note
+
+No secrets exposed.
