@@ -1,18 +1,27 @@
-import { NextResponse } from "next-response";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { RegisterSchema } from "@/schemas/auth.schema";
-import { NextResponse as NextResp } from "next/server";
+import { NextResponse } from "next/server";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
+    const { success } = await rateLimit.limit(ip);
+    
+    if (!success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await request.json();
     
     // Zod validation
     const validatedFields = RegisterSchema.safeParse(body);
     
     if (!validatedFields.success) {
-      return NextResp.json(
+      return NextResponse.json(
         { error: "Invalid fields" },
         { status: 400 }
       );
@@ -25,7 +34,7 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
-      return NextResp.json(
+      return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
       );
@@ -34,7 +43,7 @@ export async function POST(request: Request) {
     // bcrypt salt rounds = 12 as per master prompt
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name,
         email,
@@ -42,17 +51,25 @@ export async function POST(request: Request) {
       },
     });
 
+    try {
+      const verificationToken = await generateVerificationToken(email);
+      await sendVerificationEmail(verificationToken.identifier, verificationToken.token);
+      console.log(`Verification email successfully sent to ${email}`);
+    } catch (err) {
+      console.error("Failed to send verification email:", err);
+      // Email sending is non-blocking; account is still created
+    }
+
     // We do not return the password, even hashed
-    return NextResp.json({ 
+    return NextResponse.json({ 
       success: true,
       message: "User created successfully. Please verify your email.",
-      userId: user.id 
     });
 
   } catch (error) {
-    // Generic error to prevent leaking stack traces
-    return NextResp.json(
-      { error: "Internal server error" },
+    console.error("REGISTER_API_ERROR:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
     );
   }
