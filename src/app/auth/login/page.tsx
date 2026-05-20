@@ -22,18 +22,26 @@ export default function LoginPage() {
   const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
     setIsLoading(true);
     setError(null);
-    
-    const res = await signIn("credentials", {
-      ...values,
-      redirect: false,
-    });
 
-    if (res?.error) {
-      setError("Invalid email or password");
+    try {
+      const res = await signIn("credentials", {
+        ...values,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setError("Invalid email or password");
+      } else if (res?.ok) {
+        router.push("/dashboard");
+        router.refresh();
+        return;
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } catch {
+      setError("Connection error. Please check your network and try again.");
+    } finally {
       setIsLoading(false);
-    } else if (res?.ok) {
-      router.push("/dashboard");
-      router.refresh();
     }
   };
 
