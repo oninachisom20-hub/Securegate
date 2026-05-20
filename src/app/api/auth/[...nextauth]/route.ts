@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
+// On Vercel, always use the deployment URL for NextAuth
+if (process.env.VERCEL_URL) {
   process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
 }
 
