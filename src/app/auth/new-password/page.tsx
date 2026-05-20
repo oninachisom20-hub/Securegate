@@ -1,8 +1,6 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -10,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { NewPasswordSchema } from "@/schemas/auth.schema";
 
-export default function NewPasswordPage() {
+function NewPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -113,5 +111,13 @@ export default function NewPasswordPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function NewPasswordPage() {
+  return (
+    <Suspense fallback={<div className="text-center text-zinc-400">Loading...</div>}>
+      <NewPasswordContent />
+    </Suspense>
   );
 }
