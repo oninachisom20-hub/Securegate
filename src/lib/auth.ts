@@ -31,15 +31,20 @@ export const authOptions: NextAuthOptions = {
 
         const passwordsMatch = await bcrypt.compare(password, user.password);
 
-        if (passwordsMatch) {
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-          };
+        if (!passwordsMatch) {
+          return null;
         }
 
-        return null;
+        // Block login for users who have not yet verified their email
+        if (!user.emailVerified) {
+          throw new Error("EmailNotVerified");
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        };
       },
     }),
   ],

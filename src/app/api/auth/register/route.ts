@@ -50,16 +50,15 @@ export async function POST(request: Request) {
         password: hashedPassword,
       },
     });
-
     try {
+      const origin = request.headers.get("origin") || new URL(request.url).origin;
       const verificationToken = await generateVerificationToken(email);
-      await sendVerificationEmail(verificationToken.identifier, verificationToken.token);
-      console.log(`Verification email successfully sent to ${email}`);
+      await sendVerificationEmail(verificationToken.identifier, verificationToken.token, origin);
+      console.log(`Verification email successfully sent to ${email} using origin ${origin}`);
     } catch (err) {
       console.error("Failed to send verification email:", err);
       // Email sending is non-blocking; account is still created
     }
-
     // We do not return the password, even hashed
     return NextResponse.json({ 
       success: true,

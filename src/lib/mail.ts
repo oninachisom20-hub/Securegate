@@ -14,9 +14,9 @@ const gmailUser = process.env.GMAIL_USER || "noreply@securegate.app";
 const domain = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
-
-export const sendVerificationEmail = async (email: string, token: string) => {
-  const confirmLink = `${domain}/auth/verify?token=${token}`;
+export const sendVerificationEmail = async (email: string, token: string, origin?: string) => {
+  const baseDomain = origin || domain;
+  const confirmLink = `${baseDomain}/auth/verify?token=${token}`;
 
   if (!transporter) {
     console.log("Mock Email: Verification link ->", confirmLink);
@@ -31,8 +31,9 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   });
 };
 
-export const sendPasswordResetEmail = async (email: string, token: string) => {
-  const resetLink = `${domain}/auth/new-password?token=${token}`;
+export const sendPasswordResetEmail = async (email: string, token: string, origin?: string) => {
+  const baseDomain = origin || domain;
+  const resetLink = `${baseDomain}/auth/new-password?token=${token}`;
 
   if (!transporter) {
     console.log("Mock Email: Password reset link ->", resetLink);

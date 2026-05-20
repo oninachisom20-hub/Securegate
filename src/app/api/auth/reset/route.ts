@@ -27,13 +27,13 @@ export async function POST(request: Request) {
       // Return a generic success to prevent email enumeration
       return NextResponse.json({ success: "If an account exists, a reset link was sent." });
     }
-
+    const origin = request.headers.get("origin") || new URL(request.url).origin;
     const passwordResetToken = await generatePasswordResetToken(email);
     await sendPasswordResetEmail(
       passwordResetToken.email,
-      passwordResetToken.token
+      passwordResetToken.token,
+      origin
     );
-
     return NextResponse.json({ success: "If an account exists, a reset link was sent." });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

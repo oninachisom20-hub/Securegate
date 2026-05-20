@@ -1,17 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/schemas/auth.schema";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
+
+  const [error, setError] = useState<string | null>(
+    urlError === "EmailNotVerified"
+      ? "Please verify your email before logging in. Check your inbox for the verification link."
+      : urlError === "CredentialsSignin"
+      ? "Invalid email or password."
+      : null
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -23,25 +32,23 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const res = await signIn("credentials", {
-        ...values,
-        redirect: false,
-      });
+    const res = await signIn("credentials", {
+      ...values,
+      redirect: false,
+    });
 
-      if (res?.error) {
-        setError("Invalid email or password");
-      } else if (res?.ok) {
-        router.push("/dashboard");
-        router.refresh();
-        return;
+    if (res?.error) {
+      if (res.error === "EmailNotVerified") {
+        setError(
+          "Please verify your email before logging in. Check your inbox for the verification link."
+        );
       } else {
-        setError("Something went wrong. Please try again.");
+        setError("Invalid email or password.");
       }
-    } catch {
-      setError("Connection error. Please check your network and try again.");
-    } finally {
       setIsLoading(false);
+    } else if (res?.ok) {
+      router.push("/dashboard");
+      router.refresh();
     }
   };
 
@@ -109,5 +116,13 @@ export default function LoginPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-center text-zinc-400">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
