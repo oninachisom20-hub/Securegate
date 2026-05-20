@@ -1,55 +1,33 @@
-# SECURITY.md
+# Security Architecture
 
-# SecureGate Security Policy
+SecureGate prioritizes security by design. Below are the implemented defense mechanisms protecting the application.
 
-## Security Practices
+## 1. Password Security
+- All passwords are hashed using `bcryptjs` with a work factor (salt rounds) of 12.
+- Plaintext passwords are never stored in the database or logged in the terminal.
+- Strict password requirements (minimum 8 characters) enforced on client and server via Zod.
 
-SecureGate follows secure authentication and identity management principles.
+## 2. Token Integrity & Expiry
+- **Verification Tokens**: Generated using `uuidv4`, strictly bound to an email identifier, and expire after 15 minutes.
+- **Password Reset Tokens**: Securely generated, one-time use, and expire after 1 hour.
+- Old tokens are immediately invalidated when a new one is requested.
 
-Security measures include:
+## 3. Session Protection
+- Utilizes `NextAuth.js` with HTTP-Only, secure JWT cookies.
+- Sessions automatically expire and rotate.
+- Route protection is implemented at the edge via Next.js Middleware (`/dashboard/:path*`).
 
-- Password hashing using bcryptjs
-- Email verification
-- Password reset token expiry
-- Rate limiting
-- Secure session handling
-- Protected routes
-- Environment variable protection
-- HTTP security headers
+## 4. Rate Limiting & Brute Force Prevention
+- Upstash Redis Rate Limiting is implemented on critical authentication endpoints (`/api/auth/register`, `/api/auth/reset`, `/api/auth/login`).
+- Limits are strictly enforced to 5 attempts per 10-minute sliding window per IP address.
 
----
+## 5. Information Disclosure Prevention
+- The `/api/auth/reset` endpoint always returns a generic success message ("If an account exists, a reset link was sent") to prevent email enumeration attacks.
+- Registration endpoints return generic 500 errors to avoid leaking stack traces.
+- No `console.log` statements containing sensitive PII exist in the production build.
 
-## Sensitive Data
-
-Do not commit:
-
-- `.env.local`
-- API Keys
-- Secrets
-- Tokens
-
-Use:
-
-- Vercel Environment Variables
-- Secret rotation if leaked
-
----
-
-## Responsible Disclosure
-
-If you discover a vulnerability:
-
-1. Do not publish it publicly
-2. Contact the maintainer privately
-3. Provide reproduction steps
-4. Allow time for remediation
-
----
-
-## Authentication Security Rules
-
-- Never store plain passwords
-- Never reveal account existence
-- Never expose stack traces
-- Always expire tokens
-- Always validate server-side
+## 6. HTTP Security Headers
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- Configured at the Next.js framework level in `next.config.mjs`.
