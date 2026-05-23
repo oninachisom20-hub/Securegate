@@ -5,12 +5,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/schemas/auth.schema";
 import { z } from "zod";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { signIn, signOut } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
 
@@ -32,6 +31,9 @@ function LoginForm() {
     setIsLoading(true);
     setError(null);
 
+    // Clear any stale session to prevent old user data from persisting
+    await signOut({ redirect: false });
+
     const res = await signIn("credentials", {
       ...values,
       redirect: false,
@@ -47,8 +49,7 @@ function LoginForm() {
       }
       setIsLoading(false);
     } else if (res?.ok) {
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     }
   };
 

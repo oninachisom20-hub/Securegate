@@ -11,9 +11,9 @@ const transporter = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD
   : null;
 
 const gmailUser = process.env.GMAIL_USER || "noreply@securegate.app";
-const domain = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+const domain =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 export const sendVerificationEmail = async (email: string, token: string, origin?: string) => {
   const baseDomain = origin || domain;
   const confirmLink = `${baseDomain}/auth/verify?token=${token}`;

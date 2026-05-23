@@ -1,16 +1,37 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { signOut, useSession, getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { status } = useSession();
   const [formattedDate, setFormattedDate] = useState("");
+  const [userName, setUserName] = useState<string | null>(null);
+
+  // Force reload when restored from BFCache (back/forward navigation)
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
 
   useEffect(() => {
-    // Generate a realistic email verification date/time matching the active session
+    // Force fresh session fetch to override any stale cached session
+    getSession().then((freshSession) => {
+      if (freshSession?.user?.name) {
+        setUserName(freshSession.user.name);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     const date = new Date();
-    // Set to a slightly prior time or current time for mock purposes
     const dateStr = date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "numeric",
@@ -100,7 +121,7 @@ export default function DashboardPage() {
         {/* Greeting Card */}
         <div className="rounded-xl border border-[#e5e7eb]/80 bg-white p-5 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
           <h2 className="text-xl font-bold text-[#111827]">
-            Hello, {session?.user?.name || "Olusola Ben"}
+            Hello, {status === "loading" ? "..." : userName || "User"}
           </h2>
           <p className="mt-2 text-[14.5px] leading-relaxed text-[#4b5563]">
             Welcome to your secure identity console. Below is an audit of your account access controls.
